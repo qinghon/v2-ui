@@ -8,10 +8,8 @@ import platform
 import re
 import subprocess
 import sys
-import time
 from collections import deque
 from enum import Enum
-from queue import Queue
 from threading import Timer, Lock
 from typing import Optional, List
 
@@ -92,9 +90,28 @@ def restart_v2ray():
         start_v2ray()
 
 
+def v2_config_cmp(ib1: Inbound, ib2: Inbound) -> (bool, bool):
+    if not ib1.port == ib2.port:
+        return False, False
+
+
+def merge_v2_config(inbounds: List[Inbound]) -> List[dict]:
+    merge_inbounds = {}
+
+    for inbound in inbounds:
+        # TODO: compare other keys
+        if not inbound.port in merge_inbounds:
+            merge_inbounds[inbound.port] = inbound
+        else:
+            merge_inbounds[inbound.port]["settings"]["clients"].extend(inbound.settings["clients"])
+
+    return [v for v in merge_inbounds.values()]
+
+
 def gen_v2_config_from_db():
     inbounds = Inbound.query.filter_by(enable=True).all()
     inbounds = [inbound.to_v2_json() for inbound in inbounds]
+    inbounds = merge_v2_config(inbounds)
     v2_config = json.loads(config.get_v2_template_config())
     v2_config['inbounds'] += inbounds
     for conf_key in V2_CONF_KEYS:

@@ -8,12 +8,12 @@ from init import db
 class Inbound(db.Model):
     __tablename__ = 'inbound'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    port = Column(Integer, unique=True, nullable=False)
+    port = Column(Integer, unique=False, nullable=False)
     listen = Column(String(50), default='0.0.0.0')
     protocol = Column(String(50), nullable=False)
     settings = Column(String, nullable=False)
     stream_settings = Column(String, nullable=False)
-    tag = Column(String(255), default='', unique=True, nullable=False)
+    tag = Column(String(255), default='', unique=False, nullable=False)
     sniffing = Column(String, default='{"enabled":true,"destOverride":["http","tls"]}')
     remark = Column(String(255), default='', nullable=False)
     up = Column(BIGINT, default=0, nullable=False)
